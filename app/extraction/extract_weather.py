@@ -1,10 +1,12 @@
-import os 
-import requests
+import os
 import json
+import requests
+import pandas as pd
+
 from datetime import date
 
 
-from app.config.settings import WEATHER_BRONZE_PATH
+from app.config.settings import (WEATHER_BRONZE_PATH, CITIES_BRONZE_PATH)
 from app.utils.logger import logger 
 
 API_URL = ("https://api.open-meteo.com/v1/forecast")
@@ -18,7 +20,7 @@ def extract_city_weather (city_name, latitude, longitude) :
     }
     
     try :
-        response = requests.get(API_URL, timeout=10)
+        response = requests.get(API_URL, params=params, timeout=10)
         response.raise_for_status()
         data = response.json()
         
@@ -31,8 +33,8 @@ def extract_city_weather (city_name, latitude, longitude) :
         
         file_path = os.path.join(folder, f"{city_name}.json")
         
-        with open(file_path, "w") as file :
-            json.dump(data, file, indent=4)
+        with open(file_path, "w", encoding="utf-8") as file:
+            json.dump(data, file, indent=4, ensure_ascii=False)
             
             
         logger.info(f"{city_name} weather saved")
@@ -48,7 +50,33 @@ def extract_city_weather (city_name, latitude, longitude) :
     except Exception as e :
         logger.error(f"{city_name} : {e}")
         
+
+
+def extract_all_weather () :
+    
+    cities_file = os.path.join(CITIES_BRONZE_PATH, "morocco_cities.csv")
+    logger.info("Reading cities CSV...")
+    cities_df = pd.read_csv(cities_file)
+    
+    logger.info(f"{len(cities_df)} cities found")
+    
+    cities_df = cities_df.head(5)
+    
+    
+    for _, row in cities_df.iterrows() :
+        city_name = row['city']
+        latitude = row['lat']
+        longitude = row['lng']
         
         
+        logger.info(f"Extracting weather for {city_name}")
+
+        extract_city_weather(city_name, latitude, longitude)
+        
+    logger.info("Weather extraction completed.")
+    
+    
+    
+    
 if __name__ == "__main__" :
-    extract_city_weather("Casablanca", 33.5731, -7.5898)
+    extract_all_weather()
