@@ -1,5 +1,5 @@
 import logging as lg
 
-lg.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+lg.basicConfig(level=lg.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
-logger = logging.getLogger(__name__)
+logger = lg.getLogger(__name__)
