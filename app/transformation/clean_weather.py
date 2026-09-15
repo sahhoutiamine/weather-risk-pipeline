@@ -65,8 +65,6 @@ class WeatherCleaner :
             self.weather_df[col] = pd.to_numeric(self.weather_df[col], errors='coerce')
         
         self.weather_df.drop_duplicates(subset=["city", "date"], inplace=True)
-        for col in numeric_columns:
-            self.weather_df[col].fillna(self.weather_df[col].median(), inplace=True)
             
         self.weather_df = self.weather_df[(self.weather_df["temp_max"] >= -50) & (self.weather_df["temp_max"] <= 60)]
         self.weather_df = self.weather_df[(self.weather_df["temp_min"] >= -50) & (self.weather_df["temp_min"] <= 50)]
