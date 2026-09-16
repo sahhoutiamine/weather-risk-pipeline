@@ -26,6 +26,12 @@ class FeatureEngineering :
         self.df['month'] = self.df['date'].dt.month
         self.df['weekday'] = self.df['date'].dt.day_name()
         self.df["forecast_day"] = (self.df['date'] - self.df['date'].min()).dt.days + 1
+        self.df["is_weekend"] = self.df["weekday"].isin(
+        [
+            "Saturday",
+            "Sunday"
+        ]
+    )
 
     def create_temperature_category(self):
         conditions = {
@@ -84,11 +90,10 @@ class FeatureEngineering :
         )
         
     def create_temperature_range(self):
-        
-     self.df["temp_range"] = (self.df['temp_max'] - self.df['temp_min'])
+        self.df["temp_range"] = (self.df['temp_max'] - self.df['temp_min'])
      
      
-     def calculate_risk_score(self, row):
+    def calculate_risk_score(self, row):
 
         score = 0
 
@@ -268,3 +273,9 @@ class FeatureEngineering :
         self.create_operational_flags()
 
         self.save_gold()
+        
+        
+        
+if __name__ == "__main__":
+    feature_engineering = FeatureEngineering()
+    feature_engineering.run()
