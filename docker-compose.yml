@@ -41,5 +41,49 @@ services:
 
     tty: true
 
+  streamlit:
+    build:
+      context: .
+      dockerfile: docker/python/Dockerfile
+    container_name: weather_streamlit
+    command: streamlit run app/dashboard/dashboard.py --server.address=0.0.0.0 --server.port=8501
+    volumes:
+      - .:/app
+    ports:
+      - "8501:8501"
+    env_file:
+      - .env
+    environment:
+      - PYTHONPATH=/app
+    depends_on:
+      - postgres
+
+  airflow:
+    build:
+      context: .
+      dockerfile: docker/airflow/Dockerfile
+    container_name: weather_airflow
+    restart: unless-stopped
+    command: standalone
+    env_file:
+      - .env
+    environment:
+      - PYTHONPATH=/opt/airflow/project
+      # Overrides settings.py's BASE_PATH so bronze/silver/gold paths resolve
+      # correctly from Airflow's working directory (/opt/airflow), not the
+      # project root. Without this, file paths would silently point to the
+      # wrong location inside the container.
+      - BASE_PATH=/opt/airflow/project/app
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - airflow_home_data:/opt/airflow
+      - .:/opt/airflow/project
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+
 volumes:
   postgres_data:
+  airflow_home_data:
