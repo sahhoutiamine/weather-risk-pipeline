@@ -8,9 +8,6 @@ from app.config.database import engine
 st.set_page_config(page_title="Weather Risk Dashboard", layout="wide")
 
 
-# ==========================================
-# Data loading (cached to avoid hitting DB on every interaction)
-# ==========================================
 
 @st.cache_data(ttl=300)
 def load_data():
@@ -45,12 +42,9 @@ def load_data():
 
 df = load_data()
 
-st.title("🌦️ Weather Risk Dashboard — Morocco Delivery Operations")
+st.title("Weather Risk Dashboard — Morocco Delivery Operations")
 
 
-# ==========================================
-# Sidebar filters
-# ==========================================
 
 st.sidebar.header("Filtres")
 
@@ -95,9 +89,6 @@ elif periode == "3-7 jours":
     filtered = filtered[filtered["forecast_date"] > cutoff]
 
 
-# ==========================================
-# KPIs
-# ==========================================
 
 st.subheader("Indicateurs clés")
 
@@ -118,17 +109,15 @@ col4.metric("Périodes à risque (High/Critical)", nb_risky_periods)
 
 if not filtered.empty:
     top_risk_row = filtered.loc[filtered["risk_score"].idxmax()]
-    top_city_label = f"{top_risk_row['city_name']} ({top_risk_row['forecast_date'].date()})"
+    top_city_label = f"{top_risk_row['city_name']}"
 else:
     top_city_label = "—"
 col5.metric("Ville la plus à risque", top_city_label)
 
 
-# ==========================================
-# Alertes — répond directement à "où et quand être vigilant"
-# ==========================================
 
-st.subheader("⚠️ Alertes — où et quand être vigilant")
+
+st.subheader("Alertes — où et quand être vigilant")
 
 alerts = filtered[filtered["risk_level"].isin(["High", "Critical"])].sort_values(
     "risk_score", ascending=False
@@ -151,22 +140,18 @@ else:
     )
 
 
-# ==========================================
-# Carte du Maroc — points colorés selon le risque
-# ==========================================
 
-st.subheader("🗺️ Carte du risque par ville")
+
+st.subheader("Carte du risque par ville")
 
 if filtered.empty:
     st.info("Aucune donnée à afficher sur la carte pour cette sélection.")
 else:
-    # One point per city = worst (max) risk score in the current filtered selection
     city_summary = (
         filtered.groupby(["city_name", "latitude", "longitude"], as_index=False)
         .agg(max_risk_score=("risk_score", "max"))
     )
 
-    # Recover the risk_level + date corresponding to that max score, for hover info
     worst_row_per_city = filtered.loc[
         filtered.groupby("city_name")["risk_score"].idxmax()
     ][["city_name", "risk_level", "forecast_date"]]
@@ -212,9 +197,7 @@ else:
     st.caption("🔵 Low   🟠 Medium   🔴 High / Critical")
 
 
-# ==========================================
-# Évolution du risque par ville (ligne temporelle)
-# ==========================================
+
 
 st.subheader("Évolution du risque par ville")
 
@@ -239,9 +222,6 @@ else:
     st.plotly_chart(fig_line, use_container_width=True)
 
 
-# ==========================================
-# Heatmap : ville x date
-# ==========================================
 
 st.subheader("Carte thermique : risque par ville et date")
 
@@ -260,9 +240,7 @@ else:
     st.plotly_chart(fig_heatmap, use_container_width=True)
 
 
-# ==========================================
-# Données détaillées (repliable)
-# ==========================================
+
 
 with st.expander("Voir les données détaillées"):
     st.dataframe(filtered, use_container_width=True, hide_index=True)
