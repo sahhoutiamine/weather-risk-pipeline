@@ -60,7 +60,9 @@ def extract_all_weather () :
     
     logger.info(f"{len(cities_df)} cities found")
     
-    cities_df = cities_df.head(5)
+    # cities_df = cities_df.head()
+    
+    cities_df = cities_df
     
     
     for _, row in cities_df.iterrows() :
