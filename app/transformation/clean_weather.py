@@ -7,6 +7,8 @@ from app.config.settings import (CITIES_BRONZE_PATH, WEATHER_BRONZE_PATH)
 
 from app.utils.logger import logger
 
+from app.config.settings import SILVER_PATH
+
 
 
 class WeatherCleaner :
@@ -81,12 +83,10 @@ class WeatherCleaner :
         
         
     def save_silver(self) :
-        file_path = "app/silver/weather_clean.csv"
 
-        os.makedirs('app/silver', exist_ok=True)
-        
+        file_path = os.path.join(SILVER_PATH, "weather_clean.csv")
+        os.makedirs(SILVER_PATH, exist_ok=True)
         self.df.to_csv(file_path, index=False)
-        
         logger.info(f"Silver data saved: {file_path}")
         
         
