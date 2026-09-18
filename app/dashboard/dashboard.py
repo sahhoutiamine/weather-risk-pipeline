@@ -190,7 +190,7 @@ else:
         color="color",
         color_discrete_map={"blue": "blue", "orange": "orange", "red": "red"},
         size="max_risk_score",
-        size_max=30,
+        size_max=20,
         hover_name="city_name",
         hover_data={
             "max_risk_score": True,
